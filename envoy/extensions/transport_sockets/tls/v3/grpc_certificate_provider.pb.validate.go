@@ -160,6 +160,8 @@ func (m *GrpcCertificateProviderConfig) validate(all bool) error {
 
 	// no validation rules for FailOnError
 
+	// no validation rules for Authority
+
 	if len(errors) > 0 {
 		return GrpcCertificateProviderConfigMultiError(errors)
 	}

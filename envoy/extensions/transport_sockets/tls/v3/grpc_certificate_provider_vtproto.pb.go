@@ -50,6 +50,13 @@ func (m *GrpcCertificateProviderConfig) MarshalToSizedBufferVTStrict(dAtA []byte
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
 	}
+	if len(m.Authority) > 0 {
+		i -= len(m.Authority)
+		copy(dAtA[i:], m.Authority)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(m.Authority)))
+		i--
+		dAtA[i] = 0x32
+	}
 	if m.FailOnError {
 		i--
 		if m.FailOnError {
@@ -139,6 +146,10 @@ func (m *GrpcCertificateProviderConfig) SizeVT() (n int) {
 	}
 	if m.FailOnError {
 		n += 2
+	}
+	l = len(m.Authority)
+	if l > 0 {
+		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	n += len(m.unknownFields)
 	return n
