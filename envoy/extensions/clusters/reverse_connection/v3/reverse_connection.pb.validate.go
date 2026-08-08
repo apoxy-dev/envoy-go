@@ -99,6 +99,21 @@ func (m *ReverseConnectionClusterConfig) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if m.GetTenantIdFormat() != "" {
+
+		if utf8.RuneCountInString(m.GetTenantIdFormat()) > 1024 {
+			err := ReverseConnectionClusterConfigValidationError{
+				field:  "TenantIdFormat",
+				reason: "value length must be at most 1024 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return ReverseConnectionClusterConfigMultiError(errors)
 	}
@@ -113,7 +128,7 @@ type ReverseConnectionClusterConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ReverseConnectionClusterConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

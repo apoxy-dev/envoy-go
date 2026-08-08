@@ -203,7 +203,7 @@ type NetworkExternalProcessorMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m NetworkExternalProcessorMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -309,7 +309,7 @@ type ProcessingModeMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProcessingModeMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -424,6 +424,35 @@ func (m *MetadataOptions) validate(all bool) error {
 		}
 	}
 
+	if all {
+		switch v := interface{}(m.GetReceivingNamespaces()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MetadataOptionsValidationError{
+					field:  "ReceivingNamespaces",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MetadataOptionsValidationError{
+					field:  "ReceivingNamespaces",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetReceivingNamespaces()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MetadataOptionsValidationError{
+				field:  "ReceivingNamespaces",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MetadataOptionsMultiError(errors)
 	}
@@ -438,7 +467,7 @@ type MetadataOptionsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetadataOptionsMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -540,7 +569,7 @@ type MetadataOptions_MetadataNamespacesMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MetadataOptions_MetadataNamespacesMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

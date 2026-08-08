@@ -176,7 +176,7 @@ type GrpcCertificateProviderConfigMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m GrpcCertificateProviderConfigMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

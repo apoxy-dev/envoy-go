@@ -84,6 +84,17 @@ func (m *Validation) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if utf8.RuneCountInString(m.GetTenantIdFormat()) > 1024 {
+		err := ValidationValidationError{
+			field:  "TenantIdFormat",
+			reason: "value length must be at most 1024 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	// no validation rules for EmitDynamicMetadata
 
 	if utf8.RuneCountInString(m.GetDynamicMetadataNamespace()) > 255 {
@@ -110,7 +121,7 @@ type ValidationMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ValidationMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -284,6 +295,25 @@ func (m *ReverseTunnel) validate(all bool) error {
 		}
 	}
 
+	if m.GetRequiredClusterName() != "" {
+
+		if utf8.RuneCountInString(m.GetRequiredClusterName()) > 255 {
+			err := ReverseTunnelValidationError{
+				field:  "RequiredClusterName",
+				reason: "value length must be at most 255 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
+	// no validation rules for UseHttpUpgrade
+
+	// no validation rules for SkipRebalancing
+
 	if len(errors) > 0 {
 		return ReverseTunnelMultiError(errors)
 	}
@@ -298,7 +328,7 @@ type ReverseTunnelMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ReverseTunnelMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

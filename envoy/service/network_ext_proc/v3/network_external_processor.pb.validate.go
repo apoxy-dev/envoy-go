@@ -74,7 +74,7 @@ type DataMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DataMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -261,7 +261,7 @@ type ProcessingRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProcessingRequestMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -440,6 +440,8 @@ func (m *ProcessingResponse) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for CloseStreamToExtProcServer
+
 	if len(errors) > 0 {
 		return ProcessingResponseMultiError(errors)
 	}
@@ -454,7 +456,7 @@ type ProcessingResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m ProcessingResponseMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

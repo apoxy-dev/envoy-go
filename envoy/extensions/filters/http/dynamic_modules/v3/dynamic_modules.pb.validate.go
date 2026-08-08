@@ -134,7 +134,7 @@ type DynamicModuleFilterMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DynamicModuleFilterMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
@@ -253,6 +253,8 @@ func (m *DynamicModuleFilterPerRoute) validate(all bool) error {
 
 	// no validation rules for PerRouteConfigName
 
+	// no validation rules for FilterName
+
 	if all {
 		switch v := interface{}(m.GetFilterConfig()).(type) {
 		case interface{ ValidateAll() error }:
@@ -296,7 +298,7 @@ type DynamicModuleFilterPerRouteMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m DynamicModuleFilterPerRouteMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

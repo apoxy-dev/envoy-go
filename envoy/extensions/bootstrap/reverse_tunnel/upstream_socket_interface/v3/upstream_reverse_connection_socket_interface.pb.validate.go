@@ -79,6 +79,98 @@ func (m *UpstreamReverseConnectionSocketInterface) validate(all bool) error {
 
 	// no validation rules for EnableDetailedStats
 
+	if all {
+		switch v := interface{}(m.GetReporterConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpstreamReverseConnectionSocketInterfaceValidationError{
+					field:  "ReporterConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpstreamReverseConnectionSocketInterfaceValidationError{
+					field:  "ReporterConfig",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetReporterConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpstreamReverseConnectionSocketInterfaceValidationError{
+				field:  "ReporterConfig",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetEnableTenantIsolation()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UpstreamReverseConnectionSocketInterfaceValidationError{
+					field:  "EnableTenantIsolation",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UpstreamReverseConnectionSocketInterfaceValidationError{
+					field:  "EnableTenantIsolation",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetEnableTenantIsolation()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UpstreamReverseConnectionSocketInterfaceValidationError{
+				field:  "EnableTenantIsolation",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	for idx, item := range m.GetAccessLog() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UpstreamReverseConnectionSocketInterfaceValidationError{
+						field:  fmt.Sprintf("AccessLog[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UpstreamReverseConnectionSocketInterfaceValidationError{
+						field:  fmt.Sprintf("AccessLog[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UpstreamReverseConnectionSocketInterfaceValidationError{
+					field:  fmt.Sprintf("AccessLog[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return UpstreamReverseConnectionSocketInterfaceMultiError(errors)
 	}
@@ -94,7 +186,7 @@ type UpstreamReverseConnectionSocketInterfaceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m UpstreamReverseConnectionSocketInterfaceMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}

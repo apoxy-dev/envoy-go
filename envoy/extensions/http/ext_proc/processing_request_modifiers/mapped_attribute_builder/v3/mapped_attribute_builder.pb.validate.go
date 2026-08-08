@@ -60,6 +60,8 @@ func (m *MappedAttributeBuilder) validate(all bool) error {
 
 	// no validation rules for MappedRequestAttributes
 
+	// no validation rules for MappedResponseAttributes
+
 	if len(errors) > 0 {
 		return MappedAttributeBuilderMultiError(errors)
 	}
@@ -74,7 +76,7 @@ type MappedAttributeBuilderMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
 func (m MappedAttributeBuilderMultiError) Error() string {
-	var msgs []string
+	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
 	}
