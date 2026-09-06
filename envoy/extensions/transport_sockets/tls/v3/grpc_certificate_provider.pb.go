@@ -29,7 +29,7 @@ const (
 // This handshaker intercepts the TLS handshake to fetch certificates dynamically
 // from an external gRPC service based on the SNI (Server Name Indication) from
 // the ClientHello message.
-// [#next-free-field: 7]
+// [#next-free-field: 8]
 type GrpcCertificateProviderConfig struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The gRPC service that provides certificates. This service must implement
@@ -57,9 +57,16 @@ type GrpcCertificateProviderConfig struct {
 	// “grpc::ClientContext::set_authority()“. Useful when one
 	// CertificateProviderService backs multiple Envoy listeners and needs to
 	// identify the caller server-side without depending on the peer source IP.
-	Authority     string `protobuf:"bytes,6,opt,name=authority,proto3" json:"authority,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Authority string `protobuf:"bytes,6,opt,name=authority,proto3" json:"authority,omitempty"`
+	// Optional refresh window for cached certificates. Only used when cache_ttl
+	// is set. When a cache hit finds an entry that expires within this window,
+	// the handshaker returns the cached certificate immediately and starts one
+	// background refresh for that SNI. A failed refresh keeps the stale entry
+	// until the hard expiry. If not set or zero, entries expire without a
+	// refresh and the next handshake blocks on a gRPC call.
+	RefreshBeforeExpiry *durationpb.Duration `protobuf:"bytes,7,opt,name=refresh_before_expiry,json=refreshBeforeExpiry,proto3" json:"refresh_before_expiry,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *GrpcCertificateProviderConfig) Reset() {
@@ -134,18 +141,26 @@ func (x *GrpcCertificateProviderConfig) GetAuthority() string {
 	return ""
 }
 
+func (x *GrpcCertificateProviderConfig) GetRefreshBeforeExpiry() *durationpb.Duration {
+	if x != nil {
+		return x.RefreshBeforeExpiry
+	}
+	return nil
+}
+
 var File_envoy_extensions_transport_sockets_tls_v3_grpc_certificate_provider_proto protoreflect.FileDescriptor
 
 const file_envoy_extensions_transport_sockets_tls_v3_grpc_certificate_provider_proto_rawDesc = "" +
 	"\n" +
-	"Ienvoy/extensions/transport_sockets/tls/v3/grpc_certificate_provider.proto\x12)envoy.extensions.transport_sockets.tls.v3\x1a$envoy/config/core/v3/extension.proto\x1a'envoy/config/core/v3/grpc_service.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1dudpa/annotations/status.proto\x1a\x17validate/validate.proto\"\xca\x02\n" +
+	"Ienvoy/extensions/transport_sockets/tls/v3/grpc_certificate_provider.proto\x12)envoy.extensions.transport_sockets.tls.v3\x1a$envoy/config/core/v3/extension.proto\x1a'envoy/config/core/v3/grpc_service.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x1dudpa/annotations/status.proto\x1a\x17validate/validate.proto\"\x99\x03\n" +
 	"\x1dGrpcCertificateProviderConfig\x12N\n" +
 	"\fgrpc_service\x18\x01 \x01(\v2!.envoy.config.core.v3.GrpcServiceB\b\xfaB\x05\x8a\x01\x02\x10\x01R\vgrpcService\x123\n" +
 	"\atimeout\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\atimeout\x126\n" +
 	"\tcache_ttl\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\bcacheTtl\x12*\n" +
 	"\x11cache_max_entries\x18\x04 \x01(\rR\x0fcacheMaxEntries\x12\"\n" +
 	"\rfail_on_error\x18\x05 \x01(\bR\vfailOnError\x12\x1c\n" +
-	"\tauthority\x18\x06 \x01(\tR\tauthorityB\xb9\x01\xba\x80\xc8\xd1\x06\x02\x10\x02\n" +
+	"\tauthority\x18\x06 \x01(\tR\tauthority\x12M\n" +
+	"\x15refresh_before_expiry\x18\a \x01(\v2\x19.google.protobuf.DurationR\x13refreshBeforeExpiryB\xb9\x01\xba\x80\xc8\xd1\x06\x02\x10\x02\n" +
 	"7io.envoyproxy.envoy.extensions.transport_sockets.tls.v3B\x1cGrpcCertificateProviderProtoP\x01ZVgithub.com/envoyproxy/go-control-plane/envoy/extensions/transport_sockets/tls/v3;tlsv3b\x06proto3"
 
 var (
@@ -170,11 +185,12 @@ var file_envoy_extensions_transport_sockets_tls_v3_grpc_certificate_provider_pro
 	1, // 0: envoy.extensions.transport_sockets.tls.v3.GrpcCertificateProviderConfig.grpc_service:type_name -> envoy.config.core.v3.GrpcService
 	2, // 1: envoy.extensions.transport_sockets.tls.v3.GrpcCertificateProviderConfig.timeout:type_name -> google.protobuf.Duration
 	2, // 2: envoy.extensions.transport_sockets.tls.v3.GrpcCertificateProviderConfig.cache_ttl:type_name -> google.protobuf.Duration
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	2, // 3: envoy.extensions.transport_sockets.tls.v3.GrpcCertificateProviderConfig.refresh_before_expiry:type_name -> google.protobuf.Duration
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_envoy_extensions_transport_sockets_tls_v3_grpc_certificate_provider_proto_init() }
